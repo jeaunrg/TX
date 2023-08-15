@@ -1,15 +1,16 @@
 import calendar
 from datetime import datetime
 from typing import Optional
-import math
-from utils import round_down, round_up
+
+from utils import round_down
 
 
-class ToBrute:
+class Brute:
     def __init__(self, month_num, year, base_brute, bonus, n_absences, recall):
         self.base_brute = base_brute
         self.bonus = bonus
         self.n_absences = n_absences
+
         self.recall = recall
         self.month_num = month_num
         self.year = year
@@ -25,10 +26,10 @@ class ToBrute:
 
     @property
     def brute(self):
-        return self.base_brute + self.bonus + self.recall - self.brute_for_absence 
+        return self.base_brute + self.bonus + self.recall - self.brute_for_absence
 
 
-class BruteToNetImposable(ToBrute):
+class NetImposable(Brute):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.complementaire = 56 / 2
@@ -56,7 +57,7 @@ class BruteToNetImposable(ToBrute):
     @property
     def _compl_cotisation_pat(self):
         rate = 0.495
-        compl_deces = self.compl_deces_ta + self.compl_deces_tb 
+        compl_deces = self.compl_deces_ta + self.compl_deces_tb
         return self.complementaire + compl_deces * (1 / rate - 1)
 
     @property
@@ -73,24 +74,31 @@ class BruteToNetImposable(ToBrute):
         retraite_compl1 = round(self._base_secu_sociale * 0.0415, 2)
         retraite_compl2 = round(self._base_compl_tb * 0.0986, 2)
         cotisations = [
-            self.compl_deces_ta, 
-            self.compl_deces_tb, 
-            retraite_secu_sociale_plaf, 
+            self.compl_deces_ta,
+            self.compl_deces_tb,
+            retraite_secu_sociale_plaf,
             retraite_secu_sociale,
             retraite_compl1,
             retraite_compl2,
             ass_chomage_apec,
-            csg_deductible, 
+            csg_deductible,
         ]
         return sum(cotisations)
 
     @property
     def net_imposable(self):
-        return self.brute - self.cotisations
+        return round(self.brute - self.cotisations, 2)
 
 
-class NetImposableToNetBeforeTax(BruteToNetImposable):
-    def __init__(self, ticket_resto: int = 0, navigo: int = 0, extra_bonus: int = 0, *args, **kwargs):
+class NetAvantImpot(NetImposable):
+    def __init__(
+        self,
+        ticket_resto: int = 0,
+        navigo: int = 0,
+        extra_bonus: int = 0,
+        *args,
+        **kwargs,
+    ):
         super().__init__(*args, **kwargs)
         self.ticket_resto = ticket_resto
         self.navigo = navigo
@@ -106,14 +114,20 @@ class NetImposableToNetBeforeTax(BruteToNetImposable):
         return self.cotisations + self.complementaire + self.csg_crds
 
     @property
-    def net_before_tax(self):
+    def net_avant_impot(self):
         gain = self.navigo + self.extra_bonus
         retenue = self.csg_crds + self.complementaire + self.ticket_resto
         return round(self.net_imposable + gain - retenue, 2)
 
 
-class Salary(NetImposableToNetBeforeTax):
-    def __init__(self, taux_prelevement_theorique: float = 0.10, taux_prelevement: float = 0, *args, **kwargs):
+class Salaire(NetAvantImpot):
+    def __init__(
+        self,
+        taux_prelevement: float = 0,
+        taux_prelevement_theorique: float = 0.10,
+        *args,
+        **kwargs,
+    ):
         super().__init__(*args, **kwargs)
         self.taux_prelevement = taux_prelevement
         self.impot = self.net_imposable * self.taux_prelevement
@@ -124,49 +138,49 @@ class Salary(NetImposableToNetBeforeTax):
 
     @property
     def net(self):
-        return round(self.net_before_tax - self.impot, 2)
+        return round(self.net_avant_impot - self.impot, 2)
 
     def __repr__(self):
         return (
             f"Salary(brute={self.brute}, "
             f"cotisations={self.all_cotisations}, "
             f"net_imposable={self.net_imposable}, "
-            f"net_before_tax={self.net_before_tax}, "
+            f"net_before_tax={self.net_avant_impot}, "
             f"net={self.net}, "
             f"impot_a_payer={self.impots_a_payer}"
-            )
+        )
 
 
-class Salaries:
+class Salaires:
     def __init__(self):
         self.annual_brute = 0
         self.annual_bonus = 0
         self.bonus_recurrence = 0
         self._no_bonus_count = 0
-        self.year: int = 1970
-        self.month_num: int = 0
-        self.ticket_resto: int = 0
-        self.navigo: float = 0.
-        self.taux_prelevement: float = 0.
-        self.taux_prelevement_theorique: float = 0.10
+        self.year = 1970
+        self.month_num = 0
+        self.ticket_resto = 0
+        self.navigo = 0.0
+        self.taux_prelevement = 0.0
+        self.taux_prelevement_theorique = 0.10
         self.salaries = []
 
     def add_salary(
-        self, 
-        force_get_bonus: bool = False, 
-        n_absences: int = 0, 
+        self,
+        force_get_bonus: bool = False,
+        n_absences: int = 0,
         extra_bonus: int = 0,
         recall: float = 0,
-        annual_brute: Optional[int] = None, 
-        annual_bonus: Optional[int] = None, 
+        annual_brute: Optional[int] = None,
+        annual_bonus: Optional[int] = None,
         bonus_recurrence: Optional[int] = None,
-        year: Optional[int] = None, 
-        month_num: Optional[int] = None, 
+        year: Optional[int] = None,
+        month_num: Optional[int] = None,
         ticket_resto: Optional[int] = None,
-        navigo: Optional[int] = None,
+        navigo: Optional[float] = None,
         taux_prelevement: Optional[float] = None,
         taux_prelevement_theorique: Optional[float] = None,
-        ) -> Salary:
+    ) -> Salaire:
         if annual_brute is not None:
             self.annual_brute = annual_brute
         if annual_bonus is not None:
@@ -176,27 +190,28 @@ class Salaries:
 
         self._no_bonus_count += 1
         if force_get_bonus:
-            self._no_bonus_count = self.bonus_recurrence    
+            self._no_bonus_count = self.bonus_recurrence
 
-        salary = Salary(
+        salary = Salaire(
             year=year or self.year,
             n_absences=n_absences,
             extra_bonus=extra_bonus,
             recall=recall,
-            base_brute=self.annual_brute / 12, 
-            bonus=self.current_bonus, 
-            month_num=month_num or self.month_num + 1, 
+            base_brute=self.annual_brute / 12,
+            bonus=self.current_bonus,
+            month_num=month_num or self.month_num + 1,
             ticket_resto=ticket_resto or self.ticket_resto,
             navigo=navigo or self.navigo,
             taux_prelevement=taux_prelevement or self.taux_prelevement,
-            taux_prelevement_theorique=taux_prelevement_theorique or self.taux_prelevement_theorique,
-            )
+            taux_prelevement_theorique=taux_prelevement_theorique
+            or self.taux_prelevement_theorique,
+        )
         self.update_default(salary)
         self.salaries.append(salary)
         print(salary)
         return salary
 
-    def update_default(self, salary: Salary):
+    def update_default(self, salary: Salaire):
         self.year = salary.year
         self.month_num = salary.month_num
         self.ticket_resto = salary.ticket_resto
@@ -213,24 +228,27 @@ class Salaries:
 
     @property
     def impots_a_payer(self):
-        return round(sum([salary.impots_a_payer for salary in self.salaries if not salary.impot_is_paid]), 2)
+        return round(
+            sum([salary.impots_a_payer for salary in self.salaries if not salary.impot_is_paid]),
+            2,
+        )
 
 
 if __name__ == "__main__":
-    salaries = Salaries()
+    salaries = Salaires()
     salary = salaries.add_salary(
-        year=2023, 
-        annual_brute=42000, 
-        annual_bonus=3000, 
-        bonus_recurrence=3, 
-        force_get_bonus=True, 
-        ticket_resto=110, 
-        navigo=42.05, 
+        year=2023,
+        annual_brute=42000,
+        annual_bonus=3000,
+        bonus_recurrence=3,
+        force_get_bonus=True,
+        ticket_resto=110,
+        navigo=42.05,
         taux_prelevement=0.012,
         taux_prelevement_theorique=0.09,
-        )
+    )
     salary.impot_is_paid = True
-    salary = salaries.add_salary(ticket_resto=95)    
+    salary = salaries.add_salary(ticket_resto=95)
     salary = salaries.add_salary(ticket_resto=105, taux_prelevement=0.094)
     salary = salaries.add_salary(ticket_resto=80, annual_brute=42420, n_absences=3, recall=35)
     salary = salaries.add_salary(ticket_resto=70, taux_prelevement=0.105, extra_bonus=1000)
