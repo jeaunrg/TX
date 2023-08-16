@@ -5,17 +5,23 @@ from typing import Optional
 from utils import round_down
 
 
-class Brute:
-    def __init__(self, month_num, year, base_brute, bonus, n_absences, recall):
+class Base:
+    def __init__(self, month_num: int, year: int):
+        self.year = year
+        self.month_num = month_num
+        self.month = datetime.strptime(str(month_num), "%m").strftime("%B")
+        self.ndays = calendar.monthrange(year, month_num)[1]
+
+
+class Brute(Base):
+    def __init__(
+        self, base_brute: float, bonus: float, n_absences: int, recall: float, *args, **kwargs
+    ):
+        super().__init__(*args, **kwargs)
         self.base_brute = base_brute
         self.bonus = bonus
         self.n_absences = n_absences
-
         self.recall = recall
-        self.month_num = month_num
-        self.year = year
-        self.month = datetime.strptime(str(month_num), "%m").strftime("%B")
-        self.ndays = calendar.monthrange(year, month_num)[1]
 
     @property
     def brute_for_absence(self):

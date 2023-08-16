@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -27,10 +28,16 @@ DEBUG = True
 
 ALLOWED_HOSTS: list[str] = []
 
+LOGOUT_REDIRECT_URL = "/"
+LOGIN_URL = "/account/login"
+LOGIN_REDIRECT_URL = "/"
 
 # Application definition
 
 INSTALLED_APPS = [
+    # My apps
+    "account",
+    # django apps
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -114,8 +121,14 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
-
-STATIC_URL = "static/"
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+    os.path.join(BASE_DIR, "media"),
+]
+STATIC_URL = "/static/"
+MEDIA_URL = "/media/"
+STATIC_ROOT = os.path.join(BASE_DIR, "static_cdn")
+MEDIA_ROOT = os.path.join(BASE_DIR, "media_cdn")
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
