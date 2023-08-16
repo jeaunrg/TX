@@ -8,7 +8,9 @@ app_name = "account"
 
 
 urlpatterns = [
-    path("login/", SigninView.as_view(template_name="account/login.html"), name="login"),
+    path(
+        "login/", SigninView.as_view(template_name="account/login.html"), name="login"
+    ),
     path("logout/", LogoutView.as_view(), name="logout"),
     path("signup/", SignupView.as_view(), name="signup"),
     path("update/", AccountUpdateView.as_view(), name="update"),

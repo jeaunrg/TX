@@ -12,7 +12,9 @@ IMG_OPTIONS = {
 
 
 class SignupForm(UserCreationForm):
-    profile_picture = MyCroppieField(label="Photo de profil", options=IMG_OPTIONS, required=False)
+    profile_picture = MyCroppieField(
+        label="Photo de profil", options=IMG_OPTIONS, required=False
+    )
 
     class Meta:
         model = Account
@@ -20,7 +22,9 @@ class SignupForm(UserCreationForm):
 
 
 class AccountUpdateForm(UserChangeForm):
-    profile_picture = MyCroppieField(label="Photo de profil", options=IMG_OPTIONS, required=False)
+    profile_picture = MyCroppieField(
+        label="Photo de profil", options=IMG_OPTIONS, required=False
+    )
 
     class Meta:
         model = Account
