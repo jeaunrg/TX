@@ -32,9 +32,14 @@ LOGOUT_REDIRECT_URL = "/"
 LOGIN_URL = "/account/login"
 LOGIN_REDIRECT_URL = "/"
 
+CRISPY_TEMPLATE_PACK = "bootstrap4"
+
 # Application definition
 
 INSTALLED_APPS = [
+    "crispy_forms",
+    "croppie",
+    "bootstrap",
     # My apps
     "account",
     # django apps
@@ -61,7 +66,7 @@ ROOT_URLCONF = "tx_site.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
