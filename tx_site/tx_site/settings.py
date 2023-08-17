@@ -32,15 +32,17 @@ LOGOUT_REDIRECT_URL = "/"
 LOGIN_URL = "/account/login"
 LOGIN_REDIRECT_URL = "/"
 
-CRISPY_TEMPLATE_PACK = "bootstrap4"
+CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 # Application definition
 
 INSTALLED_APPS = [
     "crispy_forms",
+    "crispy_bootstrap5",
     "croppie",
     "bootstrap",
     # My apps
+    "personal",
     "account",
     # django apps
     "django.contrib.admin",
