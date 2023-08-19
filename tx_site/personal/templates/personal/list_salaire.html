@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+{% for object in object_list %}
+<div>{{object.brute}}</div>
+<div>{{object.net_imposable}}</div>
+<div>{{object.net_avant_impot}}</div>
+<div>{{object.net}}</div>
+{% endfor %}
+
+{% endblock content %}
