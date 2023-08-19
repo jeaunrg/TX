@@ -19,6 +19,7 @@ class SalaireCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
+        print(self.request.user.username)
         self.object.author = Account.objects.filter(
             username=self.request.user.username
         ).first()
