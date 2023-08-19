@@ -1,9 +1,10 @@
-from account.models import Account
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import redirect, render
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
+
+from account.models import Account
 
 from .forms import SalaireForm
 from .models import Salaire

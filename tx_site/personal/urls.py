@@ -1,5 +1,6 @@
 from django.urls import path
-from personal.views import SalaireListView, SalaireCreateView
+
+from personal.views import SalaireCreateView, SalaireListView
 
 app_name = "personal"
 
