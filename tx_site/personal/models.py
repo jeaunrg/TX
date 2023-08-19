@@ -29,6 +29,7 @@ class Salaire(Net):
             "net_imposable": "Salaire net imposable",
             "net_avant_impot": "Salaire net avant impot",
             "net": "Salaire net",
+            "edit": "Modifier",
         }
 
     def __repr__(self):

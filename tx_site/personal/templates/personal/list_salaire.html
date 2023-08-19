@@ -10,6 +10,7 @@
             <td>{{header.net_imposable}}</td>
             <td>{{header.net_avant_impot}}</td>
             <td>{{header.net}}</td>
+            <td>{{header.edit}}</td>
         </tr>
     </thead>
     <tbody>
@@ -21,6 +22,7 @@
             <td>{{object.net_imposable}}</td>
             <td>{{object.net_avant_impot}}</td>
             <td>{{object.net}}</td>
+            <td><a href="{% url 'personal:edit' object.slug %}">✎</a></td>
         </tr>
         {% endfor %}
 
