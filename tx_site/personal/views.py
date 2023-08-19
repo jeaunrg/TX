@@ -15,3 +15,8 @@ class SalaireListView(LoginRequiredMixin, ListView):
     paginate_by = 20
     template_name = "personal/list_salaire.html"
     ordering = ["-year", "-month"]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["header"] = self.model.header()
+        return context

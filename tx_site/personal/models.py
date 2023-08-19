@@ -44,7 +44,6 @@ class Brute(Base):
 
     @property
     def brute_for_absence(self):
-        print(type(self.base_brute), type(self.ndays))
         brute_day = self.base_brute / self.ndays
         deducted_absences = self.n_absences * brute_day
         refunded_absences = round(deducted_absences / 2, 2)
@@ -164,6 +163,17 @@ class Salaire(NetAvantImpot):
     @property
     def net(self):
         return round(self.net_avant_impot - self.impot, 2)
+
+    @staticmethod
+    def header():
+        return {
+            "year": "Année",
+            "month": "Mois",
+            "brute": "Salaire brute",
+            "net_imposable": "Salaire net imposable",
+            "net_avant_impot": "Salaire net avant impot",
+            "net": "Salaire net",
+        }
 
     def __repr__(self):
         return (

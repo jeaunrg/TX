@@ -1,12 +1,30 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<table>
+    <thead>
+        <tr>
+            <td>{{header.year}}</td>
+            <td>{{header.month}}</td>
+            <td>{{header.brute}}</td>
+            <td>{{header.net_imposable}}</td>
+            <td>{{header.net_avant_impot}}</td>
+            <td>{{header.net}}</td>
+        </tr>
+    </thead>
+    <tbody>
+        {% for object in object_list %}
+        <tr>
+            <td>{{object.year}}</td>
+            <td>{{object.month}}</td>
+            <td>{{object.brute}}</td>
+            <td>{{object.net_imposable}}</td>
+            <td>{{object.net_avant_impot}}</td>
+            <td>{{object.net}}</td>
+        </tr>
+        {% endfor %}
 
-{% for object in object_list %}
-<div>{{object.brute}}</div>
-<div>{{object.net_imposable}}</div>
-<div>{{object.net_avant_impot}}</div>
-<div>{{object.net}}</div>
-{% endfor %}
+    </tbody>
+</table>
 
 {% endblock content %}
