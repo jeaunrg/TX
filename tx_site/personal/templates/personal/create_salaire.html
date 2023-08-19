@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<form class="sticker" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {% include 'widgets/form.html' %}
+    <button type="submit">Submit</button>
+</form>
+{% endblock content %}
