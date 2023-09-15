@@ -1,7 +1,6 @@
 {% extends 'base.html' %}
 
 {% block content %}
-{{object.slug}}
 <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
     {% include 'widgets/form.html' %}

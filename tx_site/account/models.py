@@ -15,6 +15,16 @@ def upload_location(instance, filename):
     return upload_url
 
 
+def serialize_dict(d: dict) -> dict:
+    def serialize(value):
+        if isinstance(value, (bool, str)):
+            return value
+        else:
+            return str(value)
+
+    return {k: serialize(v) for k, v in d.items()}
+
+
 class Account(AbstractUser):
     is_author = models.BooleanField(
         default=True,
@@ -44,6 +54,12 @@ class Account(AbstractUser):
     # Does this user have permission to view this app? (ALWAYS YES FOR SIMPLICITY)
     def has_module_perms(self, app_label):
         return True
+
+    def update_default_salaire(self, form):
+        json_data = serialize_dict(form.cleaned_data)
+        print("update", json_data)
+        self.parameters.update(json_data)
+        self.save()
 
 
 @receiver(post_delete, sender=Account)

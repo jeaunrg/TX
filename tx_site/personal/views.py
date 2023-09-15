@@ -26,12 +26,18 @@ class SalaireCreateView(LoginRequiredMixin, CreateView):
     form_class = SalaireForm
     template_name = "personal/create_salaire.html"
 
+    def get_initial(self):
+        initial = super().get_initial()
+        initial.update(self.request.user.parameters)
+        return initial
+
     def form_valid(self, form):
-        self.object = form.save(commit=False)
+        self.object: Salaire = form.save(commit=False)
         self.object.author = Account.objects.filter(
             username=self.request.user.username
         ).first()
         self.object.save()
+        self.object.author.update_default_salaire(form)
         return redirect("personal:list")
 
 
@@ -48,6 +54,7 @@ class SalaireEditView(LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         self.object = form.save()
+        self.object.author.update_default_salaire(form)
         return redirect("personal:list")
 
 
