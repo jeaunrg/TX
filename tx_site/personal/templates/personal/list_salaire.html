@@ -1,6 +1,28 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<style>
+    table {
+        border-spacing: 0px;
+    }
+
+    thead tr {
+        border-bottom: 2px solid;
+    }
+
+    thead td {
+        padding: 10px;
+        border-left: 1px solid;
+        border-right: 1px solid;
+    }
+
+    tbody td {
+        text-align: center;
+        padding-bottom: 3px;
+        padding-top: 3px;
+    }
+</style>
+
 <table>
     <thead>
         <tr>
@@ -25,7 +47,9 @@
             <td><a href="{% url 'personal:edit' object.slug %}">✎</a></td>
         </tr>
         {% endfor %}
-
+        <tr>
+            <td colspan="7"><a href="{% url 'personal:create' %}">✚</a></td>
+        </tr>
     </tbody>
 </table>
 

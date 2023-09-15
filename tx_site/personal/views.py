@@ -1,3 +1,4 @@
+from account.models import Account
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import redirect, render
 from django.views.generic.base import TemplateView
@@ -5,14 +6,20 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 
-from account.models import Account
-
 from .forms import SalaireForm
 from .models import Salaire
 
 
-class HomePageView(LoginRequiredMixin, TemplateView):
-    template_name = "personal/home.html"
+class HomePageView(LoginRequiredMixin, ListView):
+    model = Salaire
+    paginate_by = 20
+    template_name = "personal/list_salaire.html"
+    ordering = ["-year", "-month"]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["header"] = self.model.header()
+        return context
 
 
 class SalaireCreateView(LoginRequiredMixin, CreateView):
@@ -32,7 +39,6 @@ class SalaireEditView(LoginRequiredMixin, UpdateView):
     model = Salaire
     form_class = SalaireForm
     template_name = "personal/edit_salaire.html"
-    success_url = "/salaire/list"
 
     def dispatch(self, request, *args, **kwargs):
         obj = self.get_object()
@@ -52,19 +58,8 @@ class SalaireDetailView(LoginRequiredMixin, DetailView):
 
 class SalaireDeleteView(DeleteView):
     model = Salaire
-    success_url = "/salaire/list"
+    template_name = "personal/confirm_delete_salaire.html"
+    success_url = "/"
 
     def get(self, request, *args, **kwargs):
         return self.post(request, *args, **kwargs)
-
-
-class SalaireListView(LoginRequiredMixin, ListView):
-    model = Salaire
-    paginate_by = 20
-    template_name = "personal/list_salaire.html"
-    ordering = ["-year", "-month"]
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["header"] = self.model.header()
-        return context

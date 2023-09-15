@@ -1,9 +1,12 @@
 {% extends 'base.html' %}
 
 {% block content %}
+{{object.slug}}
 <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
     {% include 'widgets/form.html' %}
     <button type="submit">Submit</button>
+    <a href="{% url 'personal:list' %}">Cancel</a>
+    <a href="{% url 'personal:delete' object.slug %}">Delete</a>
 </form>
 {% endblock content %}

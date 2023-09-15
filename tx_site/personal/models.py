@@ -1,11 +1,9 @@
 import uuid
 
-from django.db import models
-from django.db.models.signals import post_delete, pre_save
-from django.dispatch import receiver
-from django.utils.text import slugify
-
 from account.models import Account
+from django.db import models
+from django.db.models.signals import pre_save
+from django.utils.text import slugify
 
 from .calculations import Net
 
@@ -41,11 +39,6 @@ class Salaire(Net):
             f"net={self.net}, "
             f"impot_a_payer={self.impots_a_payer}"
         )
-
-
-@receiver(post_delete, sender=Salaire)
-def submission_delete(sender, instance, **kwargs):
-    instance.image.delete(False)
 
 
 def pre_save_blog_post_receiver(sender, instance, *args, **kwargs):
