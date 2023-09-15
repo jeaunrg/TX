@@ -4,3 +4,19 @@ body {
     align-items: flex-start;
     margin-top: 4rem;
 }
+
+thead tr {
+    border-bottom: 2px solid;
+}
+
+thead td {
+    padding: 10px;
+    border-left: 1px solid;
+    border-right: 1px solid;
+}
+
+tbody td {
+    text-align: center;
+    padding-bottom: 3px;
+    padding-top: 3px;
+}
