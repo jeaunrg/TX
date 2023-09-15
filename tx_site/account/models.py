@@ -61,6 +61,7 @@ class Account(AbstractUser):
         json_data["month"], json_data["year"] = get_next_month(
             json_data["month"], json_data["year"]
         )
+        json_data["impot_is_paid"] = False
         self.parameters.update(serialize_dict(json_data))
         self.save()
 
