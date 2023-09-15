@@ -3,6 +3,8 @@ import datetime
 
 from django.db import models
 
+MONTHS = calendar.month_name[1:]
+
 
 def year_choices():
     return [(r, r) for r in range(1970, datetime.date.today().year + 1)]
@@ -12,7 +14,12 @@ def current_year():
     return datetime.date.today().year
 
 
-MONTH_CHOICES = [(m, m) for m in calendar.month_name[1:]]
+def get_next_month(month: str, year: int) -> str:
+    index = MONTHS.index(month)
+    if index + 1 == len(MONTHS):
+        return MONTHS[0], year + 1
+    else:
+        return MONTHS[index + 1], year
 
 
 def current_month():
@@ -25,13 +32,13 @@ class Base(models.Model):
     month = models.CharField(
         "month",
         default=current_month(),
-        choices=MONTH_CHOICES,
+        choices=[(m, m) for m in MONTHS],
         max_length=20,
     )
 
     @property
     def ndays(self):
-        month_num = MONTH_CHOICES.index((self.month, self.month)) + 1
+        month_num = MONTHS.index(self.month) + 1
         return calendar.monthrange(self.year, month_num)[1]
 
 

@@ -4,6 +4,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
+from personal.calculations import get_next_month
 
 from tx_site.settings import MEDIA_ROOT, STATIC_ROOT
 
@@ -56,9 +57,11 @@ class Account(AbstractUser):
         return True
 
     def update_default_salaire(self, form):
-        json_data = serialize_dict(form.cleaned_data)
-        print("update", json_data)
-        self.parameters.update(json_data)
+        json_data = form.cleaned_data
+        json_data["month"], json_data["year"] = get_next_month(
+            json_data["month"], json_data["year"]
+        )
+        self.parameters.update(serialize_dict(json_data))
         self.save()
 
 
