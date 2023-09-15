@@ -10,7 +10,7 @@ from .calculations import Net
 
 class Salaire(Net):
     uid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    impot_is_paid = models.BooleanField(default=False)
+    impot_is_paid = models.BooleanField("Impôt payé", default=False)
     date_updated = models.DateTimeField(auto_now=True, verbose_name="date updated")
     date_published = models.DateTimeField(
         auto_now_add=True, verbose_name="date published"
@@ -39,6 +39,11 @@ class Salaire(Net):
             f"net={self.net}, "
             f"impot_a_payer={self.impots_a_payer}"
         )
+
+    @property
+    def elements(self):
+        fields = self._meta.get_fields()
+        return [(field.verbose_name, self.__dict__.get(field.name)) for field in fields]
 
 
 def pre_save_blog_post_receiver(sender, instance, *args, **kwargs):

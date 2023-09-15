@@ -23,7 +23,10 @@
             <td>{{object.net_imposable}}</td>
             <td>{{object.net_avant_impot}}</td>
             <td>{{object.net}}</td>
-            <td><a href="{% url 'personal:edit' object.slug %}">✎</a></td>
+            <td>
+                <a href="{% url 'personal:detail' object.slug %}">👁</a>
+                <a href="{% url 'personal:edit' object.slug %}">✎</a>
+            </td>
         </tr>
         {% endfor %}
         <tr>
