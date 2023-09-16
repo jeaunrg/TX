@@ -8,6 +8,9 @@ class ComplDecesTA(models.Model):
     def compute(self, netimposable):
         return round(netimposable.base_secu_sociale * self.rate, 2)
 
+    def __str__(self):
+        return f"Compl Deces TA {self.rate}"
+
 
 class ComplDecesTB(models.Model):
     rate = models.FloatField(default=0.0072)
@@ -66,5 +69,3 @@ class CsgCrds(models.Model):
 
     def compute(self, netimposable):
         return round(netimposable.base_compl * self.rate, 2)
-
-
