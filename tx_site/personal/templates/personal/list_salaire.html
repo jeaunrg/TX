@@ -16,6 +16,7 @@
             <td>{{header.net_imposable}}</td>
             <td>{{header.net_avant_impot}}</td>
             <td>{{header.net}}</td>
+            <td>{{header.impots_a_payer}}</td>
             <td>{{header.edit}}</td>
         </tr>
     </thead>
@@ -28,6 +29,7 @@
             <td>{{object.net_imposable}}</td>
             <td>{{object.net_avant_impot}}</td>
             <td>{{object.net}}</td>
+            <td>{{object.impots_a_payer}}</td>
             <td>
                 <a href="{% url 'personal:detail' object.slug %}">👁</a>
                 <a href="{% url 'personal:edit' object.slug %}">✎</a>
@@ -35,7 +37,7 @@
         </tr>
         {% endfor %}
         <tr>
-            <td colspan="7"><a href="{% url 'personal:create' %}">✚</a></td>
+            <td colspan="8"><a href="{% url 'personal:create' %}">✚</a></td>
         </tr>
     </tbody>
 </table>

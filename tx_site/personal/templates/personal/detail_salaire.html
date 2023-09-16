@@ -5,7 +5,7 @@
     <a href="{% url 'personal:list' %}">Back</a>
     <table>
         <tbody>
-            {% for name, value in object.elements %}
+            {% for name, value in object.displayed_elements %}
             <tr>
                 <td>{{name}}</td>
                 <td>{{value}}</td>

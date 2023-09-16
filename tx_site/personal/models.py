@@ -27,6 +27,7 @@ class Salaire(Net):
             "net_imposable": "Salaire net imposable",
             "net_avant_impot": "Salaire net avant impot",
             "net": "Salaire net",
+            "impots_a_payer": "Impôt restant à payer",
             "edit": "Modifier",
         }
 
@@ -41,9 +42,33 @@ class Salaire(Net):
         )
 
     @property
-    def elements(self):
-        fields = self._meta.get_fields()
-        return [(field.verbose_name, self.__dict__.get(field.name)) for field in fields]
+    def displayed_elements(self):
+        def _get_field(field_name):
+            value = getattr(self, field_name)
+            try:
+                name = self._meta.get_field(field_name).verbose_name
+            except:
+                name = field_name
+            return name, value
+
+        display_field_names = [
+            "base_brute",
+            "compl_deces_ta",
+            "compl_deces_tb",
+            "complementaire",
+            "retraite_secu_sociale_plaf",
+            "retraite_secu_sociale",
+            "complementaire",
+            "complementaire",
+            "complementaire",
+            "complementaire",
+            "complementaire",
+            "complementaire",
+            "complementaire",
+            "complementaire",
+            "complementaire",
+        ]
+        return [_get_field(field_name) for field_name in display_field_names]
 
 
 def pre_save_blog_post_receiver(sender, instance, *args, **kwargs):

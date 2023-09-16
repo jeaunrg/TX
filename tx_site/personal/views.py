@@ -14,7 +14,7 @@ class HomePageView(LoginRequiredMixin, ListView):
     model = Salaire
     paginate_by = 20
     template_name = "personal/list_salaire.html"
-    ordering = ["-year", "-month"]
+    ordering = ["year", "month"]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

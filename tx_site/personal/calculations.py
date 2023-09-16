@@ -3,11 +3,22 @@ import datetime
 
 from django.db import models
 
+from .contributions import (
+    AssApec,
+    ComplDecesTA,
+    ComplDecesTB,
+    ComplTranche1,
+    ComplTranche2,
+    CsgDeductible,
+    SecuSocial,
+    SecuSocialPlaf,
+)
+
 MONTHS = calendar.month_name[1:]
 
 
 def year_choices():
-    return [(r, r) for r in range(1970, datetime.date.today().year + 1)]
+    return [(r, r) for r in range(1970, datetime.date.today().year + 100)]
 
 
 def current_year():
@@ -47,6 +58,7 @@ class Brute(Base):
     bonus = models.FloatField(default=0.0)
     recall = models.FloatField(default=0.0)
     n_absences = models.IntegerField(default=0)
+    my_brute = models.FloatField(null=True, blank=True)
 
     @property
     def brute_for_absence(self):
@@ -61,56 +73,69 @@ class Brute(Base):
 
 
 class NetImposable(Brute):
+    plafond_secu_sociale = models.FloatField(default=3666)
+    compl_deces_ta = models.ForeignKey(
+        ComplDecesTA, on_delete=models.CASCADE, related_name="netimposable"
+    )
+    compl_deces_tb = models.ForeignKey(
+        ComplDecesTB, on_delete=models.CASCADE, related_name="netimposable"
+    )
     complementaire = models.FloatField(default=56)
+    retraite_secu_sociale_plaf = models.ForeignKey(
+        SecuSocialPlaf, on_delete=models.CASCADE, related_name="netimposable"
+    )
+    retraite_secu_sociale = models.ForeignKey(
+        SecuSocial, on_delete=models.CASCADE, related_name="netimposable"
+    )
+    retraite_compl1 = models.ForeignKey(
+        ComplTranche1, on_delete=models.CASCADE, related_name="netimposable"
+    )
+    retraite_compl2 = models.ForeignKey(
+        ComplTranche2, on_delete=models.CASCADE, related_name="netimposable"
+    )
+    ass_chomage_apec = models.ForeignKey(
+        AssApec, on_delete=models.CASCADE, related_name="netimposable"
+    )
+    rate_compl_cotisation_pat = models.FloatField(default=0.495)
+    rate_base_compl_part_brute = models.FloatField(default=0.9825)
+    csg_deductible = models.ForeignKey(
+        CsgDeductible, on_delete=models.CASCADE, related_name="netimposable"
+    )
+    my_net_imposable = models.FloatField(null=True, blank=True)
 
     @property
-    def _base_secu_sociale(self):
-        plafond = 3666
+    def base_secu_sociale(self):
         work_days_rate = (self.ndays - self.n_absences) / self.ndays
-        return plafond * work_days_rate
+        return self.plafond_secu_sociale * work_days_rate
 
     @property
-    def _base_compl_tb(self):
-        return self.brute - self._base_secu_sociale
+    def compl_cotisation_pat(self):
+        compl_deces = self.compl_deces_ta.compute(self) + self.compl_deces_tb.compute(
+            self
+        )
+        return self.complementaire / 2 + compl_deces * (
+            1 / self.rate_compl_cotisation_pat - 1
+        )
 
     @property
-    def compl_deces_tb(self):
-        rate = 0.0072
-        return round(self._base_compl_tb * rate, 2)
-
-    @property
-    def compl_deces_ta(self):
-        rate = 0.0044
-        return round(self._base_secu_sociale * rate, 2)
-
-    @property
-    def _compl_cotisation_pat(self):
-        rate = 0.495
-        compl_deces = self.compl_deces_ta + self.compl_deces_tb
-        return self.complementaire / 2 + compl_deces * (1 / rate - 1)
+    def base_compl_tb(self):
+        return self.brute - self.base_secu_sociale
 
     @property
     def base_compl(self):
-        rate_part_brute = 0.9825
-        return self._compl_cotisation_pat + self.brute * rate_part_brute
+        return self.brute * self.rate_base_compl_part_brute + self.compl_cotisation_pat
 
     @property
     def cotisations(self):
-        retraite_secu_sociale_plaf = round(self._base_secu_sociale * 0.069, 2)
-        retraite_secu_sociale = round(self.brute * 0.004, 2)
-        csg_deductible = round(self.base_compl * 0.068, 2)
-        ass_chomage_apec = round(self.brute * 0.4 * 3 / 5000, 2)
-        retraite_compl1 = round(self._base_secu_sociale * 0.0415, 2)
-        retraite_compl2 = round(self._base_compl_tb * 0.0986, 2)
         cotisations = [
-            self.compl_deces_ta,
-            self.compl_deces_tb,
-            retraite_secu_sociale_plaf,
-            retraite_secu_sociale,
-            retraite_compl1,
-            retraite_compl2,
-            ass_chomage_apec,
-            csg_deductible,
+            self.compl_deces_ta.compute(self),
+            self.compl_deces_tb.compute(self),
+            self.retraite_secu_sociale_plaf.compute(self),
+            self.retraite_secu_sociale.compute(self),
+            self.retraite_compl1.compute(self),
+            self.retraite_compl2.compute(self),
+            self.ass_chomage_apec.compute(self),
+            self.csg_deductible.compute(self),
         ]
         return sum(cotisations)
 
@@ -123,6 +148,7 @@ class NetAvantImpot(NetImposable):
     ticket_resto = models.FloatField(default=80.0)
     navigo = models.FloatField(default=42.0)
     extra_bonus = models.FloatField(default=0.0)
+    my_net_avant_impot = models.FloatField(null=True, blank=True)
 
     @property
     def csg_crds(self):
@@ -152,6 +178,8 @@ class Net(NetAvantImpot):
         max_digits=5,
         decimal_places=2,
     )
+    my_net = models.FloatField(null=True, blank=True)
+    my_impots_a_payer = models.FloatField(null=True, blank=True)
 
     @property
     def impot(self):
