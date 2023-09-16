@@ -9,6 +9,7 @@ from .contributions import (
     ComplDecesTB,
     ComplTranche1,
     ComplTranche2,
+    CsgCrds,
     CsgDeductible,
     SecuSocial,
     SecuSocialPlaf,
@@ -75,33 +76,28 @@ class Brute(Base):
 class NetImposable(Brute):
     plafond_secu_sociale = models.FloatField(default=3666)
     compl_deces_ta = models.ForeignKey(
-        ComplDecesTA, on_delete=models.CASCADE, related_name="netimposable"
+        ComplDecesTA, on_delete=models.CASCADE, blank=False, null=False
     )
-    compl_deces_tb = models.ForeignKey(
-        ComplDecesTB, on_delete=models.CASCADE, related_name="netimposable"
-    )
+    compl_deces_tb = models.ForeignKey(ComplDecesTB, on_delete=models.CASCADE)
     complementaire = models.FloatField(default=56)
     retraite_secu_sociale_plaf = models.ForeignKey(
-        SecuSocialPlaf, on_delete=models.CASCADE, related_name="netimposable"
+        SecuSocialPlaf, on_delete=models.CASCADE
     )
-    retraite_secu_sociale = models.ForeignKey(
-        SecuSocial, on_delete=models.CASCADE, related_name="netimposable"
-    )
-    retraite_compl1 = models.ForeignKey(
-        ComplTranche1, on_delete=models.CASCADE, related_name="netimposable"
-    )
-    retraite_compl2 = models.ForeignKey(
-        ComplTranche2, on_delete=models.CASCADE, related_name="netimposable"
-    )
-    ass_chomage_apec = models.ForeignKey(
-        AssApec, on_delete=models.CASCADE, related_name="netimposable"
-    )
+    retraite_secu_sociale = models.ForeignKey(SecuSocial, on_delete=models.CASCADE)
+    retraite_compl1 = models.ForeignKey(ComplTranche1, on_delete=models.CASCADE)
+    retraite_compl2 = models.ForeignKey(ComplTranche2, on_delete=models.CASCADE)
+    ass_chomage_apec = models.ForeignKey(AssApec, on_delete=models.CASCADE)
     rate_compl_cotisation_pat = models.FloatField(default=0.495)
     rate_base_compl_part_brute = models.FloatField(default=0.9825)
-    csg_deductible = models.ForeignKey(
-        CsgDeductible, on_delete=models.CASCADE, related_name="netimposable"
-    )
+    csg_deductible = models.ForeignKey(CsgDeductible, on_delete=models.CASCADE)
     my_net_imposable = models.FloatField(null=True, blank=True)
+
+    @classmethod
+    def create_with_latest_foreign_key(cls, specific_name):
+        # Get the most recently created ForeignKeyModel instance
+        specific_foreign_key_instance = ComplDecesTA.objects.filter(name=specific_name)
+        if specific_foreign_key_instance:
+            return cls.objects.create(compl_deces_ta=specific_foreign_key_instance)
 
     @property
     def base_secu_sociale(self):
@@ -149,6 +145,7 @@ class NetAvantImpot(NetImposable):
     navigo = models.FloatField(default=42.0)
     extra_bonus = models.FloatField(default=0.0)
     my_net_avant_impot = models.FloatField(null=True, blank=True)
+    csg_crds = models.ForeignKey(CsgCrds, on_delete=models.CASCADE)
 
     @property
     def csg_crds(self):
@@ -157,12 +154,20 @@ class NetAvantImpot(NetImposable):
 
     @property
     def all_cotisations(self):
-        return self.cotisations + self.complementaire / 2 + self.csg_crds
+        return (
+            self.cotisations
+            + self.complementaire / 2
+            + self.csg_deductible.compute(self)
+        )
 
     @property
     def net_avant_impot(self):
         gain = self.navigo + self.extra_bonus
-        retenue = self.csg_crds + self.complementaire / 2 + self.ticket_resto
+        retenue = (
+            self.csg_deductible.compute(self)
+            + self.complementaire / 2
+            + self.ticket_resto
+        )
         return round(self.net_imposable + gain - retenue, 2)
 
 

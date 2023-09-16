@@ -59,3 +59,12 @@ class CsgDeductible(models.Model):
 
     def compute(self, netimposable):
         return round(netimposable.base_compl * self.rate, 2)
+
+
+class CsgCrds(models.Model):
+    rate = models.FloatField(default=0.029)
+
+    def compute(self, netimposable):
+        return round(netimposable.base_compl * self.rate, 2)
+
+

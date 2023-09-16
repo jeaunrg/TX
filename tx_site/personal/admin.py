@@ -6,6 +6,7 @@ from .contributions import (
     ComplDecesTB,
     ComplTranche1,
     ComplTranche2,
+    CsgCrds,
     CsgDeductible,
     SecuSocial,
     SecuSocialPlaf,
@@ -21,3 +22,4 @@ admin.site.register(ComplTranche2)
 admin.site.register(CsgDeductible)
 admin.site.register(SecuSocial)
 admin.site.register(SecuSocialPlaf)
+admin.site.register(CsgCrds)
