@@ -38,7 +38,7 @@ class ComplTranche1(models.Model):
     rate = models.FloatField(default=0.0415)
 
     def compute(self, netimposable):
-        return round(netimposable.base_secu_sociale * 0.0415, 2)
+        return round(netimposable.base_secu_sociale * self.rate, 2)
 
 
 class ComplTranche2(models.Model):
