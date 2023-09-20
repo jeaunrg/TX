@@ -49,15 +49,13 @@ class Salaire(models.Model):
     rappel = models.FloatField(default=0.0)
     n_absences = models.IntegerField(default=0)
     elements_imposable = models.ManyToManyField(
-        ContributionImposable, through="LiaisonImposable", related_name="imposable"
+        ContributionImposable, through="LiaisonImposable"
     )
     ticket_resto = models.FloatField(default=80.0)
     navigo = models.FloatField(default=42.0)
     extra_bonus = models.FloatField(default=0.0)
     my_net_avant_impot = models.FloatField(null=True, blank=True)
-    elements = models.ManyToManyField(
-        Contribution, through="Liaison", related_name="salaire"
-    )
+    elements = models.ManyToManyField(Contribution, through="Liaison")
     taux_prelevement = models.DecimalField(
         default=0,
         max_digits=5,
