@@ -1,25 +1,23 @@
 from django.contrib import admin
 
-from .contributions import (
-    AssApec,
-    ComplDecesTA,
-    ComplDecesTB,
-    ComplTranche1,
-    ComplTranche2,
-    CsgCrds,
-    CsgDeductible,
-    SecuSocial,
-    SecuSocialPlaf,
-)
-from .models import Salaire
+from .models import Contribution, ContributionImposable, Salaire
 
-admin.site.register(Salaire)
-admin.site.register(AssApec)
-admin.site.register(ComplDecesTA)
-admin.site.register(ComplDecesTB)
-admin.site.register(ComplTranche1)
-admin.site.register(ComplTranche2)
-admin.site.register(CsgDeductible)
-admin.site.register(SecuSocial)
-admin.site.register(SecuSocialPlaf)
-admin.site.register(CsgCrds)
+
+class ContributionImposableInline(admin.TabularInline):
+    model = ContributionImposable
+
+
+class ContributionInline(admin.TabularInline):
+    model = Contribution
+
+
+@admin.register(Salaire)
+class SalaireAdmin(admin.ModelAdmin):
+    inlines = [ContributionImposableInline, ContributionInline]
+    exclude = ["date_updated", "date_published", "slug"]
+
+    def get_elements(self, obj):
+        return [element.name for element in obj.elements_imposable.all()]
+
+
+admin.site.register(Contribution)
