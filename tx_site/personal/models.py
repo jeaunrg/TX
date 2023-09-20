@@ -11,21 +11,9 @@ from .calculations import *
 class Contribution(models.Model):
     name = models.CharField(max_length=100)
     taux = models.FloatField(default=0.0044)
+    is_imposable = models.BooleanField(default=True)
     net_avant_impot = models.ForeignKey(
         "Salaire", on_delete=models.CASCADE, related_name="_elements"
-    )
-
-    @property
-    def value(self):
-        base_value = self.net_imposable.get(self.base)
-        return base_value * self.taux
-
-
-class ContributionImposable(models.Model):
-    name = models.CharField(max_length=100)
-    taux = models.FloatField(default=0.0044)
-    net_avant_impot = models.ForeignKey(
-        "Salaire", on_delete=models.CASCADE, related_name="_elements_imposable"
     )
 
     @property
@@ -48,14 +36,11 @@ class Salaire(models.Model):
     bonus = models.FloatField(default=0.0)
     rappel = models.FloatField(default=0.0)
     n_absences = models.IntegerField(default=0)
-    elements_imposable = models.ManyToManyField(
-        ContributionImposable, through="LiaisonImposable"
-    )
+    contributions = models.ManyToManyField(Contribution, through="Liaison")
     ticket_resto = models.FloatField(default=80.0)
     navigo = models.FloatField(default=42.0)
     extra_bonus = models.FloatField(default=0.0)
     my_net_avant_impot = models.FloatField(null=True, blank=True)
-    elements = models.ManyToManyField(Contribution, through="Liaison")
     taux_prelevement = models.DecimalField(
         default=0,
         max_digits=5,
@@ -101,7 +86,11 @@ class Salaire(models.Model):
 
     @property
     def cotisations_imposables(self):
-        cotisations = [elem.value for elem in self.elements_imposable.all()]
+        cotisations = [
+            contribution.value
+            for contribution in self.contributions.all()
+            if contribution.is_imposable
+        ]
         return sum(cotisations)
 
     @property
@@ -110,7 +99,11 @@ class Salaire(models.Model):
 
     @property
     def cotisations(self):
-        cotisations = [elem.value for elem in self.elements.all()]
+        cotisations = [
+            contribution.value
+            for contribution in self.contributions.all()
+            if not contribution.is_imposable
+        ]
         cotisations += [self.complementaire / 2, self.ticket_resto]
         return sum(cotisations)
 
@@ -186,11 +179,6 @@ class Salaire(models.Model):
             f"net={self.net}, "
             f"impot_a_payer={self.impots_a_payer}"
         )
-
-
-class LiaisonImposable(models.Model):
-    salaire = models.ForeignKey(Salaire, on_delete=models.CASCADE)
-    element = models.ForeignKey(ContributionImposable, on_delete=models.CASCADE)
 
 
 class Liaison(models.Model):

@@ -1,10 +1,6 @@
 from django.contrib import admin
 
-from .models import Contribution, ContributionImposable, Salaire
-
-
-class ContributionImposableInline(admin.TabularInline):
-    model = ContributionImposable
+from .models import Contribution, Salaire
 
 
 class ContributionInline(admin.TabularInline):
@@ -13,11 +9,11 @@ class ContributionInline(admin.TabularInline):
 
 @admin.register(Salaire)
 class SalaireAdmin(admin.ModelAdmin):
-    inlines = [ContributionImposableInline, ContributionInline]
+    inlines = [ContributionInline]
     exclude = ["date_updated", "date_published", "slug"]
 
     def get_elements(self, obj):
-        return [element.name for element in obj.elements_imposable.all()]
+        return [contribution.name for contribution in obj.contributions.all()]
 
 
 admin.site.register(Contribution)
