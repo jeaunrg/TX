@@ -5,6 +5,7 @@ from .models import Contribution, Salaire
 
 class ContributionInline(admin.TabularInline):
     model = Contribution
+    extra = 0
 
 
 @admin.register(Salaire)

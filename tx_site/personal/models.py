@@ -12,8 +12,12 @@ class Contribution(models.Model):
     name = models.CharField(max_length=100)
     taux = models.FloatField(default=0.0044)
     is_imposable = models.BooleanField(default=True)
-    net_avant_impot = models.ForeignKey(
-        "Salaire", on_delete=models.CASCADE, related_name="_elements"
+    _salaire = models.ForeignKey(
+        "Salaire",
+        on_delete=models.CASCADE,
+        related_name="_contributions",
+        null=True,
+        blank=True,
     )
 
     @property
@@ -31,7 +35,6 @@ class Salaire(models.Model):
         choices=[(m, m) for m in MONTHS],
         max_length=20,
     )
-
     base_brute = models.FloatField(default=2000.0)
     bonus = models.FloatField(default=0.0)
     rappel = models.FloatField(default=0.0)
@@ -53,11 +56,11 @@ class Salaire(models.Model):
     )
     my_net = models.FloatField(null=True, blank=True)
     my_impots_a_payer = models.FloatField(null=True, blank=True)
-
     impot_is_paid = models.BooleanField("Impôt payé", default=False)
     date_updated = models.DateTimeField(auto_now=True, verbose_name="date updated")
     date_published = models.DateTimeField(
-        auto_now_add=True, verbose_name="date published"
+        auto_now_add=True,
+        verbose_name="date published",
     )
     author = models.ForeignKey(Account, on_delete=models.CASCADE)
     slug = models.SlugField(blank=True, unique=True)
