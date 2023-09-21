@@ -1,5 +1,6 @@
 from django.urls import path
 from personal.views import (
+    ContributionCreateView,
     HomePageView,
     SalaireCreateView,
     SalaireDeleteView,
@@ -15,4 +16,9 @@ urlpatterns = [
     path("<slug>/", SalaireDetailView.as_view(), name="detail"),
     path("<slug>/edit/", SalaireEditView.as_view(), name="edit"),
     path("<slug>/delete/", SalaireDeleteView.as_view(), name="delete"),
+    path(
+        "<slug>/contribution/",
+        ContributionCreateView.as_view(),
+        name="contribution",
+    ),
 ]

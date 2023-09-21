@@ -10,22 +10,29 @@ from tx_site.current_user import get_current_user
 
 from .calculations import *
 
+BASE_CHOICES = [
+    ("base_compl", "base_compl"),
+    ("brute", "brute"),
+]
+
 
 class Contribution(models.Model):
+    uid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=100)
+    base = models.CharField(max_length=100, choices=BASE_CHOICES, default="brute")
     taux = models.FloatField(default=0.0044)
     is_imposable = models.BooleanField(default=True)
-    _salaire = models.ForeignKey(
+    salaire = models.ForeignKey(
         "Salaire",
         on_delete=models.CASCADE,
-        related_name="_contributions",
+        related_name="contributions",
         null=True,
         blank=True,
     )
 
     @property
     def value(self):
-        base_value = self.net_imposable.get(self.base)
+        base_value = self.salaire.brute
         return base_value * self.taux
 
 
@@ -42,10 +49,10 @@ class Salaire(models.Model):
     bonus = models.FloatField(default=0.0)
     rappel = models.FloatField(default=0.0)
     n_absences = models.IntegerField(default=0)
-    contributions = models.ManyToManyField(Contribution, through="Liaison")
     ticket_resto = models.FloatField(default=80.0)
     navigo = models.FloatField(default=42.0)
     extra_bonus = models.FloatField(default=0.0)
+    complementaire = models.FloatField(default=56)
     my_net_avant_impot = models.FloatField(null=True, blank=True)
     taux_prelevement = models.DecimalField(
         default=0,
@@ -184,6 +191,11 @@ class Salaire(models.Model):
         ]
         return [_get_field(field_name) for field_name in display_field_names]
 
+    def save(self, *args, **kwargs):
+        for contribution in self.contributions.all():
+            contribution.save()
+        return super().save(*args, **kwargs)
+
     def __repr__(self):
         return (
             f"Salary(brute={self.brute}, "
@@ -203,9 +215,15 @@ class Liaison(models.Model):
 @receiver(pre_save, sender=Salaire)
 def set_default_contributions(sender, instance, **kwargs):
     if not instance.contributions.exists():
+        return
         # Add default contributions if none exist
-        default_contributions = [Contribution(), Contribution()]
-        instance.contributions.set(default_contributions)
+        for contribution in [Contribution(), Contribution()]:
+            instance.contributions.add(contribution, bulk=False)
+
+        # default_contributions = [Contribution(), Contribution()]
+        # # for c in default_contributions:
+        # #     c.save()
+        # instance.contributions.set(default_contributions)
 
 
 def pre_save_salaire_receiver(sender, instance, *args, **kwargs):

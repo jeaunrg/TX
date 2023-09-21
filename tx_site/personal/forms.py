@@ -1,6 +1,12 @@
 from django import forms
 
-from .models import Salaire
+from .models import Contribution, Salaire
+
+
+class ContributionForm(forms.ModelForm):
+    class Meta:
+        model = Contribution
+        fields = "__all__"
 
 
 class SalaireForm(forms.ModelForm):
