@@ -3,7 +3,10 @@ import uuid
 from account.models import Account
 from django.db import models
 from django.db.models.signals import pre_save
+from django.dispatch import receiver
 from django.utils.text import slugify
+
+from tx_site.current_user import get_current_user
 
 from .calculations import *
 
@@ -62,7 +65,11 @@ class Salaire(models.Model):
         auto_now_add=True,
         verbose_name="date published",
     )
-    author = models.ForeignKey(Account, on_delete=models.CASCADE)
+    author = models.ForeignKey(
+        Account,
+        default=get_current_user,
+        on_delete=models.CASCADE,
+    )
     slug = models.SlugField(blank=True, unique=True)
 
     @property
@@ -109,6 +116,10 @@ class Salaire(models.Model):
         ]
         cotisations += [self.complementaire / 2, self.ticket_resto]
         return sum(cotisations)
+
+    @property
+    def all_cotisations(self):
+        return sum([contribution.value for contribution in self.contributions.all()])
 
     @property
     def net_avant_impot(self):
@@ -187,6 +198,14 @@ class Salaire(models.Model):
 class Liaison(models.Model):
     salaire = models.ForeignKey(Salaire, on_delete=models.CASCADE)
     element = models.ForeignKey(Contribution, on_delete=models.CASCADE)
+
+
+@receiver(pre_save, sender=Salaire)
+def set_default_contributions(sender, instance, **kwargs):
+    if not instance.contributions.exists():
+        # Add default contributions if none exist
+        default_contributions = [Contribution(), Contribution()]
+        instance.contributions.set(default_contributions)
 
 
 def pre_save_salaire_receiver(sender, instance, *args, **kwargs):
