@@ -3,7 +3,6 @@ import uuid
 from account.models import Account
 from django.db import models
 from django.db.models.signals import pre_save
-from django.dispatch import receiver
 from django.utils.text import slugify
 
 from tx_site.current_user import get_current_user
@@ -178,11 +177,6 @@ class Salaire(models.Model):
         ]
         return [_get_field(field_name) for field_name in display_field_names]
 
-    def save(self, *args, **kwargs):
-        for contribution in self.contributions.all():
-            contribution.save()
-        return super().save(*args, **kwargs)
-
     def __repr__(self):
         return (
             f"Salary(brute={self.brute}, "
@@ -192,20 +186,6 @@ class Salaire(models.Model):
             f"net={self.net}, "
             f"impot_a_payer={self.impots_a_payer}"
         )
-
-
-@receiver(pre_save, sender=Salaire)
-def set_default_contributions(sender, instance, **kwargs):
-    if not instance.contributions.exists():
-        return
-        # Add default contributions if none exist
-        for contribution in [Contribution(), Contribution()]:
-            instance.contributions.add(contribution, bulk=False)
-
-        # default_contributions = [Contribution(), Contribution()]
-        # # for c in default_contributions:
-        # #     c.save()
-        # instance.contributions.set(default_contributions)
 
 
 def pre_save_salaire_receiver(sender, instance, *args, **kwargs):
