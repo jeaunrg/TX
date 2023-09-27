@@ -36,7 +36,7 @@ class Contribution(models.Model):
 
 
 class Salaire(models.Model):
-    uid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    uid = models.UUIDField(null=False, primary_key=True, default=uuid.uuid4)
     year = models.IntegerField("year", choices=year_choices(), default=current_year())
     month = models.CharField(
         "month",
@@ -72,7 +72,15 @@ class Salaire(models.Model):
         verbose_name="date published",
     )
     author = models.ForeignKey(Account, on_delete=models.CASCADE)
-    slug = models.SlugField(blank=True, unique=True)
+    slug = models.SlugField(unique=True)
+
+    # def __init__(self, *args, **kwargs):
+    #     self.uid = uuid.uuid4()
+    #     return super().__init__(*args, **kwargs)
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(uuid.uuid4())
+        super(Salaire, self).save(*args, **kwargs)
 
     @property
     def ndays(self):
@@ -188,9 +196,12 @@ class Salaire(models.Model):
         )
 
 
-def pre_save_salaire_receiver(sender, instance, *args, **kwargs):
-    if not instance.slug:
-        instance.slug = slugify(f"{instance.author.username}-{instance.uid}")
+# def pre_save_salaire_receiver(sender, instance, *args, **kwargs):
+#     print("slug", instance.slug, instance, type)
+#     if not instance.slug:
+#         breakpoint()
+#         print(instance.uid, instance.author.username)
+#         instance.slug = slugify(f"{instance.author.username}-{instance.uid}")
 
 
-pre_save.connect(pre_save_salaire_receiver, sender=Salaire)
+# pre_save.connect(pre_save_salaire_receiver, sender=Salaire)
