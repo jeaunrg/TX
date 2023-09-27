@@ -72,11 +72,7 @@ class Salaire(models.Model):
         auto_now_add=True,
         verbose_name="date published",
     )
-    author = models.ForeignKey(
-        Account,
-        default=get_current_user,
-        on_delete=models.CASCADE,
-    )
+    author = models.ForeignKey(Account, on_delete=models.CASCADE)
     slug = models.SlugField(blank=True, unique=True)
 
     @property
@@ -179,15 +175,6 @@ class Salaire(models.Model):
             "complementaire",
             "retraite_secu_sociale_plaf",
             "retraite_secu_sociale",
-            "complementaire",
-            "complementaire",
-            "complementaire",
-            "complementaire",
-            "complementaire",
-            "complementaire",
-            "complementaire",
-            "complementaire",
-            "complementaire",
         ]
         return [_get_field(field_name) for field_name in display_field_names]
 
@@ -205,11 +192,6 @@ class Salaire(models.Model):
             f"net={self.net}, "
             f"impot_a_payer={self.impots_a_payer}"
         )
-
-
-class Liaison(models.Model):
-    salaire = models.ForeignKey(Salaire, on_delete=models.CASCADE)
-    element = models.ForeignKey(Contribution, on_delete=models.CASCADE)
 
 
 @receiver(pre_save, sender=Salaire)

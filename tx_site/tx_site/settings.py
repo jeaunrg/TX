@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "crispy_bootstrap5",
     "croppie",
     "bootstrap",
+    "extra_views",
     # My apps
     "personal",
     "account",

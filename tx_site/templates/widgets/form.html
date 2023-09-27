@@ -2,7 +2,17 @@
 {% include 'widgets/form_field.html' %}
 {% endfor %}
 
-{{ form.media }}
+{% for formset in inlines %}
+<table>
+    {% for inline_form in formset %}
+    <tr>
+        {% for field in inline_form %}
+        <td>{% include 'widgets/form_field.html' %}</td>
+        {% endfor %}
+    </tr>
+    {% endfor %}
+</table>
+{% endfor %}
 
 {% if form.non_field_errors %}
 <div style="color: var(--form-error);">
