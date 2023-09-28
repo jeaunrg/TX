@@ -7,7 +7,7 @@
     {% for formset in inlines %}
     {{ formset }}
     {% endfor %}
-    <button type="submit">Submit</button>
-    <a href="{% url 'personal:list' %}">Cancel</a>
+    <button type="submit">Valider</button>
+    <a href="{% url 'personal:list' %}">Annuler</a>
 </form>
 {% endblock content %}

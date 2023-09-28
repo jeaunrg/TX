@@ -30,7 +30,6 @@ class SalaireCreateView(LoginRequiredMixin, CreateWithInlinesView):
     model = Salaire
     inlines = [ContributionInline]
     fields = [
-        "uid",
         "year",
         "month",
         "base_brute",
@@ -63,7 +62,6 @@ class SalaireCreateView(LoginRequiredMixin, CreateWithInlinesView):
         salaire.author = Account.objects.filter(
             username=self.request.user.username
         ).first()
-        # salaire.slug = slugify(f"{salaire.author.username}-{salaire.uid}")
         salaire.save()
         salaire.author.update_default_salaire(form)
         return redirect("personal:list")
@@ -92,6 +90,7 @@ class SalaireUpdateView(UpdateWithInlinesView):
         "impot_is_paid",
     ]
     template_name = "personal/edit_salaire.html"
+    success_url = "/"
 
 
 # class SalaireCreateView(LoginRequiredMixin, CreateView):

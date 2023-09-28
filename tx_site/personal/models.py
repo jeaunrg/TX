@@ -74,10 +74,6 @@ class Salaire(models.Model):
     author = models.ForeignKey(Account, on_delete=models.CASCADE)
     slug = models.SlugField(unique=True)
 
-    # def __init__(self, *args, **kwargs):
-    #     self.uid = uuid.uuid4()
-    #     return super().__init__(*args, **kwargs)
-
     def save(self, *args, **kwargs):
         self.slug = slugify(uuid.uuid4())
         super(Salaire, self).save(*args, **kwargs)
@@ -194,14 +190,3 @@ class Salaire(models.Model):
             f"net={self.net}, "
             f"impot_a_payer={self.impots_a_payer}"
         )
-
-
-# def pre_save_salaire_receiver(sender, instance, *args, **kwargs):
-#     print("slug", instance.slug, instance, type)
-#     if not instance.slug:
-#         breakpoint()
-#         print(instance.uid, instance.author.username)
-#         instance.slug = slugify(f"{instance.author.username}-{instance.uid}")
-
-
-# pre_save.connect(pre_save_salaire_receiver, sender=Salaire)
