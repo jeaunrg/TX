@@ -18,12 +18,12 @@ from .models import Contribution, Salaire
 class ContributionInline(InlineFormSetFactory):
     model = Contribution
     fields = ["name", "base", "taux", "is_imposable"]
-    formset_kwargs = {"form_kwargs": {"initial": {}}}
+    # formset_kwargs = {"form_kwargs": {"initial": {}}}
 
-    def get_formset_kwargs(self):
-        kwargs = super(ContributionInline, self).get_formset_kwargs()
-        kwargs["form_kwargs"]["initial"].update({"name": "yooo"})
-        return kwargs
+    # def get_formset_kwargs(self):
+    #     kwargs = super(ContributionInline, self).get_formset_kwargs()
+    #     kwargs["form_kwargs"]["initial"].update({"name": "yooo"})
+    #     return kwargs
 
 
 class SalaireCreateView(LoginRequiredMixin, CreateWithInlinesView):
@@ -71,7 +71,6 @@ class SalaireUpdateView(UpdateWithInlinesView):
     model = Salaire
     inlines = [ContributionInline]
     fields = [
-        "uid",
         "year",
         "month",
         "base_brute",

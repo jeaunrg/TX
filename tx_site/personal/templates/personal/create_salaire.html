@@ -1,11 +1,12 @@
 {% extends 'base.html' %}
+{% load crispy_forms_tags %}
 
 {% block content %}
 <form method="post">
     {% csrf_token %}
-    {{ form }}
+    {{form.as_p}}
     {% for formset in inlines %}
-    {{ formset }}
+    {{formset}}
     {% endfor %}
     <button type="submit">Valider</button>
     <a href="{% url 'personal:list' %}">Annuler</a>
